@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/">
+        <file>res/rcssmin.py.codeobj</file>
+    </qresource>
+</RCC>
