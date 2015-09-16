@@ -1,9 +1,8 @@
 #ifndef PYRUN_H
 #define PYRUN_H
 
-#ifndef Py_PYTHON_H
 #include <Python.h>
-#endif // Py_PYTHON_H
+#include <marshal.h>
 
 #include <QString>
 
