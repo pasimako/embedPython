@@ -8,28 +8,31 @@
 
 PyRun::PyRun(QString execFile)
 {
-    this->execFile = execFile.toStdWString();
+    QString pythonStdLib = "libpy311.zip";
+    QString pythonStdLibPath = QDir::toNativeSeparators(QFileInfo(QFileInfo(execFile).absoluteDir(), pythonStdLib).canonicalFilePath());
+    QString rcssminPath = "://res/rcssmin.py.codeobj";
 
-    QStringList pythonPath;
-    pythonPath << QDir::toNativeSeparators(QFileInfo(QFileInfo(execFile).absoluteDir(), "libpy34.zip").canonicalFilePath());
-
-    this->pythonPath = pythonPath.join(":").toStdWString();
+    PyConfig config;
+    PyConfig_InitPythonConfig(&config);
 
     // Path of our executable
-    Py_SetProgramName((wchar_t*) this->execFile.c_str());
+    PyConfig_SetBytesString(&config, &config.program_name, execFile.toStdString().c_str());
+
+    PyConfig_Read(&config);
 
     // Set module search path
-    Py_SetPath(this->pythonPath.c_str());
+    config.module_search_paths_set = 1;
+    PyWideStringList_Append(&config.module_search_paths, pythonStdLibPath.toStdWString().c_str());
 
     Py_NoSiteFlag = 1;
 
     // Initialize the Python interpreter
-    Py_InitializeEx(0);
+    Py_InitializeFromConfig(&config);
 
     qDebug() << "Python interpreter version:" << QString(Py_GetVersion());
     qDebug() << "Python standard library path:" << QString::fromWCharArray(Py_GetPath());
 
-    QFile f("://res/rcssmin.py.codeobj");
+    QFile f(rcssminPath);
 
     if(f.open(QIODevice::ReadOnly))
     {
@@ -124,7 +127,7 @@ QString PyRun::ObjectToString(PyObject *poVal)
         if(PyUnicode_Check(poVal))
         {
             // Convert Python Unicode object to UTF8 and return pointer to buffer
-            char *str = PyUnicode_AsUTF8(poVal);
+            const char *str = PyUnicode_AsUTF8(poVal);
 
             if(!hasError())
             {
