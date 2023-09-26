@@ -14,8 +14,6 @@ public:
     QString cssmin(QString);
 
 private:
-    std::wstring execFile;
-    std::wstring pythonPath;
     bool hasError();
     PyObject* importModule(const QByteArray&, const QString&);
     PyObject* callFunction(PyObject*, QString, PyObject*);
